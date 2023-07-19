@@ -1,0 +1,173 @@
+package com.github.bitfexl.notamparser;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class NotamParser {
+    /**
+     * Parse a notam according to ICAO Annex 15 Appendix 6.
+     * @param rawNotam The raw notam text.
+     * @return The parsed notam.
+     */
+    public Notam parse(final String rawNotam) {
+        final Notam.NotamBuilder notam = Notam.builder().raw(rawNotam);
+
+        final String[] lines = rawNotam.split("\n", 2);
+
+        if (lines.length != 2) {
+            // might happen in NOTAMC?
+            throw new IllegalArgumentException("Only header???");
+        }
+
+        parseHeader(notam, lines[0]);
+
+        Map<Character, String> items = parseItems(lines[1]);
+
+        for (char item : items.keySet()){
+            switch (item) {
+                case 'Q': parseItemQ(notam, items.get(item)); break;
+                case 'A': parseItemA(notam, items.get(item)); break;
+                case 'B': parseItemB(notam, items.get(item)); break;
+                case 'C': parseItemC(notam, items.get(item)); break;
+                case 'D': parseItemD(notam, items.get(item)); break;
+                case 'E': parseItemE(notam, items.get(item)); break;
+                case 'F': parseItemF(notam, items.get(item)); break;
+                case 'G': parseItemG(notam, items.get(item)); break;
+                default: throw new IllegalArgumentException("Unknown item '" + item + "'.");
+            }
+        }
+
+        return notam.build();
+    }
+
+    private void parseHeader(Notam.NotamBuilder notam, String header) {
+        String[] parts = header.split("[/ ]");
+        notam.series(parts[0]);
+
+        notam.year(parseYear(Integer.parseInt(parts[1])));
+
+        final NotamType type = NotamType.parse(parts[2]);
+        notam.type(type);
+
+        if (type != NotamType.NEW) {
+            notam.previousNotam(
+                Notam.builder()
+                    .series(parts[3])
+                    .year(parseYear(Integer.parseInt(parts[4])))
+                    .build()
+            );
+        }
+    }
+
+    /**
+     * Get a map of every item in the notam.
+     * @param raw The notam without header and CREATED, SOURCE at the bottom (from dins?).
+     * @return A map of every item contained in the notam.
+     */
+    private Map<Character, String> parseItems(String raw) {
+        raw = " " + raw.replace('\n', ' ');
+
+        Map<Character, String> items = new HashMap<>();
+
+        Character currentItem = null;
+        int currentStartingIndex = 0;
+
+        for (char newItem : new char[] {'Q', 'A', 'B', 'C', 'D', 'E', 'F', 'G'}) {
+            final String itemId = " " + newItem + ") ";
+            int newIndex = raw.indexOf(itemId, currentStartingIndex);
+
+            if (newIndex == -1) {
+                // item does not exist
+                continue;
+            }
+
+            if (currentItem != null) {
+                items.put(currentItem, raw.substring(currentStartingIndex, newIndex));
+            }
+
+            currentItem = newItem;
+            currentStartingIndex = newIndex + itemId.length();
+        }
+
+        if (currentItem != null) {
+            items.put(currentItem, raw.substring(currentStartingIndex));
+        }
+
+        return items;
+    }
+
+    private void parseItemQ(Notam.NotamBuilder notam, String itemQ) {
+        // 8 fields separated by a stroke
+        String[] parts = itemQ.split("/");
+
+        notam.fir(parts[0].trim());
+        notam.notamCode(parts[1]);
+        notam.traffic(Traffic.parse(parts[2]));
+        notam.purposes(NotamPurpose.parse(parts[3]));
+        notam.scopes(NotamScope.parse(parts[4]));
+        notam.qLower(Integer.parseInt(parts[5]));
+        notam.qUpper(Integer.parseInt(parts[6]));
+        parseCordsItemQ(notam, parts[7]);
+    }
+
+    private void parseItemA(Notam.NotamBuilder notam, String itemA) {
+        notam.locationIndicators(Arrays.stream(itemA.split(" ")).filter(l -> l.length() > 0).toList());
+    }
+
+    private void parseItemB(Notam.NotamBuilder notam, String itemB) {
+        notam.from(parseDateTimeGroup(itemB));
+    }
+
+    private void parseItemC(Notam.NotamBuilder notam, String itemC) {
+        if (itemC.equalsIgnoreCase("PERM")) {
+            notam.isPermanent(true);
+        } else {
+            notam.to(parseDateTimeGroup(itemC));
+            notam.isEstimation(itemC.contains("EST"));
+        }
+    }
+
+    private void parseItemD(Notam.NotamBuilder notam, String itemD) {
+        notam.schedule(itemD);
+    }
+
+    private void parseItemE(Notam.NotamBuilder notam, String itemE) {
+        notam.notamText(itemE);
+    }
+
+    private void parseItemF(Notam.NotamBuilder notam, String itemF) {
+        notam.lowerLimit(itemF);
+    }
+
+    private void parseItemG(Notam.NotamBuilder notam, String itemG) {
+        notam.upperLimit(itemG);
+    }
+
+    private void parseCordsItemQ(Notam.NotamBuilder notam, String cords) {
+        // https://en.wikipedia.org/wiki/ISO_6709
+
+        double lat = Double.parseDouble(cords.substring(0, 2));
+        lat += (Double.parseDouble(cords.substring(2, 4)) / 60);
+        lat *= (cords.charAt(4) == 'S' || cords.charAt(4) == 's' ? -1 : 1);
+        notam.latitude(lat);
+
+        double lng = Double.parseDouble(cords.substring(5, 8));
+        lng += (Double.parseDouble(cords.substring(8, 10)) / 60);
+        lng *= (cords.charAt(10) == 'W' || cords.charAt(10) == 'w' ? -1 : 1);
+        notam.longitude(lng);
+
+        notam.radius(Integer.parseInt(cords.substring(11)));
+    }
+
+    /**
+     * Parse a ICAO date-time group to ISO 8601.
+     */
+    private String parseDateTimeGroup(String s) {
+        return parseYear(Integer.parseInt(s.substring(0, 2))) + "-" + s.substring(2, 4) + "-" + s.substring(4, 6) + "T" + s.substring(6, 8) + ":" + s.substring(8, 10) + ":00Z";
+    }
+
+    private int parseYear(int twoDigitYear) {
+        return 2000 + twoDigitYear;
+    }
+}
