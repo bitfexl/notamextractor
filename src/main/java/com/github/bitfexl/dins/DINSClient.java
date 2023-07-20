@@ -3,13 +3,17 @@ package com.github.bitfexl.dins;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DINSClient {
     private static final String API_BASE_URL = "https://www.notams.faa.gov/dinsQueryWeb/";
 
-    private final OkHttpClient httpClient = new OkHttpClient();
+    private final OkHttpClient httpClient = new OkHttpClient.Builder()
+            .callTimeout(Duration.ZERO)
+            .readTimeout(Duration.ZERO)
+            .build();
     private final DINSExtractor extractor = new DINSExtractor();
 
     /**

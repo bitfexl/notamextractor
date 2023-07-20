@@ -15,7 +15,7 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) {
         Map<String, ICAOLocationQuery> locations = ICAOLocationQuery.initialQuery().querySubLocations();
-        Map<String, ICAOLocation> austria = locations.get("Austria").queryICAOLocation();
+        Map<String, ICAOLocation> austria = locations.get("Germany").queryICAOLocation();
 
         DINSClient dinsClient = new DINSClient();
         NotamParser parser = new NotamParser();
@@ -30,6 +30,6 @@ public class Main {
         }
 
         System.out.println(gson.toJson(parsedNotams));
-        System.out.println(parsedNotams.size() + " Notams for Austria");
+        System.out.println(parsedNotams.size() + " Notams for Germany");
     }
 }
