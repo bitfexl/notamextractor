@@ -35,4 +35,31 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- https://github.com/vojtechhabarta/typescript-generator -->
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>3.2.1263</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jsonLibrary>gson</jsonLibrary>
+                    <classes>
+                        <class>com.github.bitfexl.notamparser.Notam</class>
+                    </classes>
+                    <outputKind>module</outputKind>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
