@@ -158,6 +158,16 @@ public class Notam {
     String upperLimit;
 
     /**
+     * The created line at the end of each notam returned by DINS.
+     */
+    String created;
+
+    /**
+     * The source line at the end of each notam returned by DINS.
+     */
+    String source;
+
+    /**
      * Checks if qLower and qUpper are set (provided specific information).
      * @return true: qLower and qUpper have set values, false: qLower=0, qUpper=999;
      */

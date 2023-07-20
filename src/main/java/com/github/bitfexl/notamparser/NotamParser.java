@@ -1,10 +1,11 @@
 package com.github.bitfexl.notamparser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class NotamParser {
+    private final String CREATED_PREFIX = "CREATED:";
+    private final String SOURCE_PREFIX = "SOURCE:";
+
     /**
      * Parse a notam according to ICAO Annex 15 Appendix 6.
      * @param rawNotam The raw notam text.
@@ -22,7 +23,22 @@ public class NotamParser {
 
         parseHeader(notam, lines[0]);
 
-        Map<Character, String> items = parseItems(lines[1]);
+        // parse created and source
+        List<String> notamBody = new ArrayList<>(List.of(lines[1].split("\n")));
+
+        if (notamBody.size() > 2) {
+            String s;
+            if ((s = notamBody.get(notamBody.size() - 2)).startsWith(CREATED_PREFIX)) {
+                notam.created(s.substring(CREATED_PREFIX.length()).trim());
+                notamBody.remove(notamBody.size() - 2);
+            }
+            if ((s = notamBody.get(notamBody.size() - 1)).startsWith(SOURCE_PREFIX)) {
+                notam.source(s.substring(SOURCE_PREFIX.length()).trim());
+                notamBody.remove(notamBody.size() - 1);
+            }
+        }
+
+        Map<Character, String> items = parseItems(String.join(" ", notamBody));
 
         for (char item : items.keySet()){
             switch (item) {
@@ -62,12 +78,10 @@ public class NotamParser {
 
     /**
      * Get a map of every item in the notam.
-     * @param raw The notam without header and CREATED, SOURCE at the bottom (from dins?).
+     * @param raw The notam without header and CREATED, SOURCE at the bottom (from dins?), singele line.
      * @return A map of every item contained in the notam.
      */
     private Map<Character, String> parseItems(String raw) {
-        raw = " " + raw.replace('\n', ' ');
-
         Map<Character, String> items = new HashMap<>();
 
         Character currentItem = null;
