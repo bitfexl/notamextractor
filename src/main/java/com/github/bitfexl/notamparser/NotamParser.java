@@ -88,7 +88,8 @@ public class NotamParser {
         int currentStartingIndex = 0;
 
         for (char newItem : new char[] {'Q', 'A', 'B', 'C', 'D', 'E', 'F', 'G'}) {
-            final String itemId = " " + newItem + ") ";
+            // Q is the first item, so no space
+            final String itemId = newItem == 'Q' ? "Q) " : " " + newItem + ") ";
             int newIndex = raw.indexOf(itemId, currentStartingIndex);
 
             if (newIndex == -1) {
