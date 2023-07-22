@@ -13,3 +13,14 @@ mvn process-classes
 ````
 
 to generate typescript interfaces for the notam data class.
+
+## GH Actions
+
+**package.yml**:
+
+This action is based on
+
+- https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+- https://github.com/actions/upload-artifact
+
+and exports a jar as an artifact.
