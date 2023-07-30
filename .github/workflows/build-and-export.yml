@@ -37,10 +37,18 @@ jobs:
           distribution: 'temurin'
       - name: Generate
         run: |
-          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Austria" > Austria.json
-          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Czech Republic" > Czech_Republic.json
-          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "France" > France.json
-          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Germany" > Germany.json
-          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Switzerland" > Switzerland.json
+          mkdir json
+          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Austria" > json/Austria.json
+          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Czech Republic" > json/Czech_Republic.json
+          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "France" > json/France.json
+          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Germany" > json/Germany.json
+          java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Switzerland" > json/Switzerland.json
       - name: List
-        run: ls -la
+        run: |
+          ls -la
+          ls -la json
+      - name: Save jsons
+        uses: actions/upload-artifact@v3
+        with:
+          name: json
+          path: json/
