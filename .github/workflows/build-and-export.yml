@@ -30,5 +30,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: notamextractor
+      - name: Generate
+        run: |
+          java -jar .\notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Austria" > Austria.json
+          java -jar .\notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Czech Republic" > Czech_Republic.json
+          java -jar .\notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "France" > France.json
+          java -jar .\notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Germany" > Germany.json
+          java -jar .\notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Switzerland" > Switzerland.json
       - name: List
         run: ls -la
