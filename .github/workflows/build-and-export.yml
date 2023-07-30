@@ -22,6 +22,7 @@ jobs:
           path: target/notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar
 
   generate:
+    needs: build
     runs-on: ubuntu-latest
     
     steps:
