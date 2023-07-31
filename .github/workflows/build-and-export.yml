@@ -93,5 +93,5 @@ jobs:
           git config user.name actions
           git config user.email actions@github.com
           git add .
-          git commit -m "generated"
+          git commit -m "generated json data"
           git push
