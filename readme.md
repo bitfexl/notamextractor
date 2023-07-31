@@ -16,11 +16,18 @@ to generate typescript interfaces for the notam data class.
 
 ## GH Actions
 
-**package.yml**:
+**build-and-export.yml**:
 
 This action is based on
 
 - https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
 - https://github.com/actions/upload-artifact
+- https://gist.github.com/bitfexl/51bfedb39a1096ebe40c1fac084bb0b7
 
-and exports a jar as an artifact.
+and generates notam data json files for the notam map deployment repo.
+
+Overview
+
+- Build app
+- Generate json data
+- Upload json data to https://github.com/bitfexl/notammapdeployment
