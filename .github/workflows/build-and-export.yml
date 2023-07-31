@@ -52,3 +52,35 @@ jobs:
         with:
           name: json
           path: json/
+          
+  publish:
+    needs: generate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout publish repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.PUBLISH_REPO }}
+          token: ${{ secrets.PUBLISH_REPO_TOKEN }}
+          path: publish
+          
+      - name: Download notam jsons
+        uses: actions/download-artifact@v3
+        with:
+          name: json
+      
+      - name: Copy json
+        run: |
+          mkdir publish/notamdata/
+          cp -r json/* publish/notamdata/
+      
+      - name: Publish
+        run: |
+          cd publish
+          date > notamdata/generated.txt
+          git config user.name actions
+          git config user.email actions@github.com
+          git add .
+          git commit -m "generated"
+          git push
