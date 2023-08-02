@@ -42,7 +42,7 @@ jobs:
       
       - name: Generate
         run: |
-          mkdir json
+          mkdir -p json
           java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Austria" > json/Austria.json
           java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "Czech Republic" > json/Czech_Republic.json
           java -jar ./notamextractor-1.0-SNAPSHOT-jar-with-dependencies.jar countrynotams "France" > json/France.json
