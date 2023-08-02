@@ -85,7 +85,7 @@ jobs:
       
       - name: Copy json
         run: |
-          mkdir publish/notamdata/
+          mkdir -p publish/notamdata/
           cp -r ./json/* publish/notamdata/
       
       - name: Publish
