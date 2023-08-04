@@ -30,6 +30,7 @@ This action is based on
 - https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
 - https://github.com/actions/upload-artifact
 - https://gist.github.com/bitfexl/51bfedb39a1096ebe40c1fac084bb0b7
+- https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
 
 and generates notam data json files for the notam map deployment repo.
 
