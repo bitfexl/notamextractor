@@ -1,6 +1,10 @@
 name: Build and export json
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 1 * * *'
 
 jobs:
   build:
