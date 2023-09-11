@@ -118,12 +118,24 @@ public class NotamParser {
 
         notam.fir(parts[0].trim());
         notam.notamCode(parts[1]);
-        notam.traffic(Traffic.parse(parts[2]));
-        notam.purposes(NotamPurpose.parse(parts[3]));
-        notam.scopes(NotamScope.parse(parts[4]));
-        notam.qLower(Integer.parseInt(parts[5]));
-        notam.qUpper(Integer.parseInt(parts[6]));
-        parseCordsItemQ(notam, parts[7]);
+        if (!parts[2].isEmpty()) {
+            notam.traffic(Traffic.parse(parts[2]));
+        }
+        if (!parts[3].isEmpty()) {
+            notam.purposes(NotamPurpose.parse(parts[3]));
+        }
+        if (!parts[4].isEmpty()) {
+            notam.scopes(NotamScope.parse(parts[4]));
+        }
+        if (!parts[5].isEmpty()) {
+            notam.qLower(Integer.parseInt(parts[5]));
+        }
+        if (!parts[6].isEmpty()) {
+            notam.qUpper(Integer.parseInt(parts[6]));
+        }
+        if (!parts[7].isEmpty()) {
+            parseCordsItemQ(notam, parts[7]);
+        }
     }
 
     private void parseItemA(Notam.NotamBuilder notam, String itemA) {
@@ -161,6 +173,12 @@ public class NotamParser {
 
     private void parseCordsItemQ(Notam.NotamBuilder notam, String cords) {
         // https://en.wikipedia.org/wiki/ISO_6709
+
+        // if missing/incorrect cords
+        if (cords.length() <= 3) {
+            notam.radius(Integer.parseInt(cords));
+            return;
+        }
 
         double lat = Double.parseDouble(cords.substring(0, 2));
         lat += (Double.parseDouble(cords.substring(2, 4)) / 60);
